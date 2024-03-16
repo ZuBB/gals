@@ -75,7 +75,7 @@ func doesEnvMatch() bool {
 }
 
 func SaveMacOsApps(targetDir string) {
-	if doesEnvMatch() {
+	if !doesEnvMatch() {
 		log.Printf("SaveCurrentMacOsApps: current platform %s is not suported\n", runtime.GOOS)
 		return
 	}
