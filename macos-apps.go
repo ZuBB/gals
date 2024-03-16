@@ -1,11 +1,14 @@
 package main
 
 import (
+	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
+const rootAppsDir = "/Applications/"
 const macosSysApps = "macos-system-apps"
 const macosUserApps = "macos-user-apps"
 
@@ -27,11 +30,12 @@ func getApps(targetDirPath string) (string, error) {
 	return strings.Join(entryNames, "\n"), nil
 }
 
-func saveApps(appsPath, baseTargetDir, listType, appsType string) error {
+func saveApps(appsPath, baseTargetDir, listType, appsType string) {
 	appsList, err := getApps(appsPath)
 
 	if err != nil {
-		return err
+		log.Printf("%v", err)
+		// return err
 	}
 
 	targetDir := filepath.Join(baseTargetDir, listType)
@@ -39,22 +43,48 @@ func saveApps(appsPath, baseTargetDir, listType, appsType string) error {
 
 	err = os.MkdirAll(targetDir, 0755)
 	if err != nil {
-		return err
+		log.Printf("%v", err)
+		// return err
 	}
 
 	err = SaveFileContent(appsList, filePath)
 	if err != nil {
-		return err
+		log.Printf("%v", err)
+		// return err
 	}
 
-	return nil
+	// return nil
 }
 
-func SaveCurrentSystemApps(targetDir string) error {
-	return saveApps("/Applications/", targetDir, ListTypeCurrent, macosSysApps)
+func saveCurrentAppsList(targetDir string) {
+	// system apps @ current
+	saveApps(rootAppsDir, targetDir, ListTypeCurrent, macosSysApps)
+
+	// user apps @ current
+	appsDir := filepath.Join(GetHomeDir(), rootAppsDir)
+	saveApps(appsDir, targetDir, ListTypeCurrent, macosUserApps)
 }
 
-func SaveCurrentUserApps(targetDir string) error {
-	appsDir := filepath.Join(GetHomeDir(), "Applications/")
-	return saveApps(appsDir, targetDir, ListTypeCurrent, macosUserApps)
+func saveAllTimeAppsList(/*targetDir string*/) {
+	// TODO
+	log.Println("[macos-apps.go::saveAllTimeAppsList] not implemented yet")
 }
+
+func doesEnvMatch() bool {
+	return runtime.GOOS == "darwin"
+}
+
+func SaveMacOsApps(targetDir string) {
+	if doesEnvMatch() {
+		log.Printf("SaveCurrentMacOsApps: current platform %s is not suported\n", runtime.GOOS)
+		return
+	}
+
+	saveCurrentAppsList(targetDir)
+	saveAllTimeAppsList(/*targetDir*/)
+}
+
+// if error := saveUserApps(targetDir); error != nil {
+// 	log.Printf("%v", error)
+// 	return error
+// }

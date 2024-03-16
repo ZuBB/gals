@@ -51,7 +51,6 @@ func main() {
 	targetPath := filepath.Join(baseDir, dynamicPathSegment)
 	// fmt.Println(targetPath)
 
-	SaveCurrentSystemApps(targetPath)
-	SaveCurrentUserApps(targetPath)
+	SaveMacOsApps(targetPath)
 	SaveCurrentBrewApps(targetPath)
 }
